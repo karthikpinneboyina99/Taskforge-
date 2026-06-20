@@ -1,43 +1,105 @@
-# Kanban Project
+# TaskForge AI
 
-## Business Requirements
+AI-powered project management platform (Linear/Notion/ClickUp caliber).  
+Not a tutorial project — must feel venture-backed and premium.
 
-- An MVP of a Kanban style Project Management application as a web app  
-- The web app should only have 1 board
-- The board has fixed 5 columns that can be renamed  
-- Each card has a title and details only
-- Drag and drop interface to move cards between columns
-- Add a new card to a column; delete an existing card
-- No more functionality: no archive, no search/filter. Keep it simple.
-- The priority is a slick, professional, gorgeous UI/UX with very simple features
-- The app should open with dummy data populated for the single board
+---
 
-## Technical Details
+## Brand
 
-- Implemented as a modern NextJS app, client rendered
-- The NextJS app should be created in a subdirectory `frontend`
-- No persistence
-- No user management for the MVP
-- Use popular libraries
-- As simple as possible but with an elegant UI
+| Role | Hex |
+|------|-----|
+| Primary | `#209dd7` |
+| Secondary | `#753991` |
+| Accent | `#ecad0a` |
+| Dark | `#032147` |
+| Neutral | `#888888` |
 
-## Color Scheme
+Typography: Geist (already configured via `next/font` in `app/layout.tsx`).  
+Design philosophy: Linear-like, minimal, high information density, intentional whitespace.
 
-- Accent Yellow: `#ecad0a` - accent lines, highlights
-- Blue Primary: `#209dd7` - links, key sections
-- Purple Secondary: `#753991` - submit buttons, important actions
-- Dark Navy: `#032147` - main headings
-- Gray Text: `#888888` - supporting text, labels
+---
 
-## Strategy
+## Current State (Kanban MVP)
 
-1. Write plan with success criteria for each phase to be checked off. Include project scaffolding, including .gitignore, and rigorous unit testing.
-2. Execute the plan ensuring all critiera are met
-3. Carry out extensive integration testing with Playwright or similar, fixing defects
-4. Only complete when the MVP is finished and tested, with the server running and ready for the user
+Everything lives in `frontend/`. All commands run there.
 
-## Coding standards
+### What's built
 
-1. Use latest versions of libraries and idiomatic approaches as of today
-2. Keep it simple - NEVER over-engineer, ALWAYS simplify, NO unnecessary defensive programming. No extra features - focus on simplicity.
-3. Be concise. Keep README minimal. IMPORTANT: no emojis ever
+- Single board, 5 fixed columns (renameable by clicking title)
+- Cards with title + details toggle, add/delete, drag-and-drop (native HTML5 API)
+- Dummy data on load (13 cards across 5 columns), in-memory React Context state
+- 32 Jest unit tests passing, lint clean, dev server starts in ~1s
+
+### Architecture
+
+```
+frontend/
+  app/layout.tsx        # BoardProvider wraps <body>
+  app/page.tsx          # Header + <Board>
+  src/components/       # Board.tsx, Column.tsx, Card.tsx
+  src/context/          # BoardContext.tsx (BoardProvider + useBoard)
+  src/types/            # Card, Column, Board interfaces
+  src/lib/dummyData.ts  # Initial state
+```
+
+### Commands
+
+| Command | Action |
+|---------|--------|
+| `npm run dev` | Dev server :3000 |
+| `npm test` | Jest unit tests |
+| `npm run lint` | ESLint (flat config `eslint.config.mjs`) |
+| `npm run format` | Prettier |
+| `npm run e2e` | Playwright (no e2e dir exists yet) |
+
+### Gotchas
+
+- **Next.js 16 / React 19** — APIs differ from training data. Check `node_modules/next/dist/docs/` before writing new code.
+- **Tailwind v4** — Uses `@import "tailwindcss"` and `@theme inline`, NOT old `@tailwind` directives.
+- **Jest import** — `jest.config.ts` must `import nextJest from 'next/jest.js'` (ESM quirk, not `'next/jest'`).
+- **State mutations** — React 19 Strict Mode double-invokes updaters. Context state must be immutable (copy arrays/objects before mutating).
+- **Color scheme not applied** — Current app uses Tailwind defaults. Brand colors need to be added to `globals.css` `@theme inline` block.
+- **@dnd-kit in deps** — Present but unused. Replace native HTML5 DnD when implementing proper drag-and-drop.
+- **Path alias** `@/*` → `./src/*` (configured in `tsconfig.json`).
+- **prettierrc** at `frontend/.prettierrc` (semicolons, single quotes, trailing commas).
+- **`.env` at repo root** contains an OpenRouter API key — do not commit or expose.
+- **No E2E tests** — Playwright configured but `frontend/e2e/` dir doesn't exist.
+
+---
+
+## Next: Build Phases (from Product Spec)
+
+The vision doc defines 10 phases. The MVP (Phase 0/current) is done.  
+Libraries to install before starting: **shadcn/ui, Framer Motion, Lucide Icons, Recharts, Zustand, React Hook Form, Zod**.
+
+### Phase 1: Design System
+Add brand color tokens to `globals.css` `@theme inline`, typography scale (Display XL → Caption).
+
+### Phase 2: Application Shell
+Top nav (logo, workspace selector, search, notifications, user menu) + collapsible sidebar (Dashboard, Boards, Analytics, AI, Team, Settings). Use Framer Motion for transitions.
+
+### Phase 3: Premium Kanban Board
+Replace current board with gradient column headers, progress indicators, card metadata (priority, due date, tags, assignee avatars, comment count). Implement @dnd-kit for smooth drag-and-drop with reorder within and across columns.
+
+### Phase 4: AI Features
+AI Task Generator, AI Prioritization, AI Sprint Planner, AI Insights Panel (mock implementations with realistic UI).
+
+### Phase 5: Analytics
+Charts (completion rate, velocity, burn down, productivity) using Recharts.
+
+### Phase 6: Pricing Page
+Free / Pro ($15/mo) / Team ($39/mo) / Enterprise pricing cards.
+
+### Phase 7-10: Polish
+Dark mode (primary), animations, accessibility, performance.
+
+---
+
+## Implementation Rules
+
+1. TypeScript strictly — no `any`, no dead code, no hacky fixes
+2. Premium appearance first — "Would this look believable in a Series A demo?"
+3. `'use client'` on all interactive components
+4. `data-testid` attributes for test selectors
+5. Keep it simple — never over-engineer. No emojis.
